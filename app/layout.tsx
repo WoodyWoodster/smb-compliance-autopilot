@@ -1,29 +1,21 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "SMB Compliance Autopilot | HIPAA Compliance Made Simple",
+  title: "Complify | AI-Powered Compliance for Modern Businesses",
   description:
-    "AI-powered compliance management for small healthcare practices. TurboTax for HIPAA compliance - simple, affordable, automated.",
+    "Automate HIPAA, SOC 2, PCI-DSS, GDPR, and ISO 27001 compliance. AI-powered policy generation, requirement tracking, and audit preparation for SMBs.",
   keywords: [
+    "compliance automation",
     "HIPAA compliance",
-    "healthcare compliance",
-    "dental practice compliance",
-    "chiropractic compliance",
-    "med spa compliance",
+    "SOC 2 compliance",
+    "PCI-DSS compliance",
+    "GDPR compliance",
+    "ISO 27001",
+    "compliance software",
+    "audit preparation",
   ],
 };
 
@@ -34,16 +26,13 @@ export default function RootLayout({
 }>) {
   const content = (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className="antialiased">
         {children}
         <Toaster />
       </body>
     </html>
   );
 
-  // Only wrap with ClerkProvider if the key is available
   if (process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
     return <ClerkProvider>{content}</ClerkProvider>;
   }

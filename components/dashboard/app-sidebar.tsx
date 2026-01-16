@@ -12,6 +12,8 @@ import {
   Settings,
   Shield,
   ChevronUp,
+  GraduationCap,
+  FileCheck,
 } from "lucide-react";
 import {
   Sidebar,
@@ -54,6 +56,16 @@ const navigationItems = [
     icon: FileText,
   },
   {
+    title: "Training",
+    url: "/dashboard/training",
+    icon: GraduationCap,
+  },
+  {
+    title: "Verification",
+    url: "/dashboard/verification",
+    icon: FileCheck,
+  },
+  {
     title: "Tasks",
     url: "/dashboard/tasks",
     icon: ListTodo,
@@ -72,33 +84,38 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="border-b px-6 py-4">
         <Link href="/dashboard" className="flex items-center gap-2">
-          <Shield className="h-6 w-6 text-primary" />
-          <span className="font-semibold">Compliance Autopilot</span>
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+            <Shield className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <span className="font-semibold">Complify</span>
         </Link>
       </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-muted-foreground">Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigationItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={
-                      pathname === item.url ||
-                      (item.url !== "/dashboard" &&
-                        pathname.startsWith(item.url))
-                    }
-                  >
-                    <Link href={item.url}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {navigationItems.map((item) => {
+                const isActive =
+                  pathname === item.url ||
+                  (item.url !== "/dashboard" && pathname.startsWith(item.url));
+
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      className={isActive ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : ""}
+                    >
+                      <Link href={item.url}>
+                        <item.icon className={`h-4 w-4 ${isActive ? "text-primary" : ""}`} />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

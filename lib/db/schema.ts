@@ -68,6 +68,60 @@ export const subscriptionTierEnum = pgEnum("subscription_tier", [
   "business",
 ]);
 
+// Training enums
+export const trainingContentTypeEnum = pgEnum("training_content_type", [
+  "ai_conversation",
+  "video",
+  "document",
+]);
+
+export const trainingStatusEnum = pgEnum("training_status", [
+  "not_started",
+  "in_progress",
+  "completed",
+  "expired",
+]);
+
+export const trainingCourseStatusEnum = pgEnum("training_course_status", [
+  "draft",
+  "active",
+  "archived",
+]);
+
+export const userRoleEnum = pgEnum("user_role", [
+  "front_desk",
+  "clinical",
+  "admin",
+  "all",
+]);
+
+// Verification enums
+export const evidenceTypeEnum = pgEnum("evidence_type", [
+  "document",
+  "training_record",
+  "screenshot",
+  "attestation",
+]);
+
+export const evidenceStatusEnum = pgEnum("evidence_status", [
+  "pending",
+  "verified",
+  "rejected",
+]);
+
+export const signatureMethodEnum = pgEnum("signature_method", [
+  "checkbox",
+  "typed_name",
+  "e_signature",
+]);
+
+export const checklistTypeEnum = pgEnum("checklist_type", [
+  "monthly",
+  "quarterly",
+  "annual",
+  "pre_audit",
+]);
+
 // Tables
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -209,6 +263,126 @@ export const auditLogs = pgTable("audit_logs", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Training Tables
+export const trainingCourses = pgTable("training_courses", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id")
+    .references(() => organizations.id, { onDelete: "cascade" })
+    .notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  content: text("content"), // AI-generated course content or instructions
+  contentType: trainingContentTypeEnum("content_type").default("ai_conversation").notNull(),
+  targetRoles: jsonb("target_roles").$type<string[]>().default(["all"]), // ["front_desk", "clinical", "admin", "all"]
+  relatedRequirements: jsonb("related_requirements").$type<string[]>().default([]), // ["164.308(a)(5)", ...]
+  estimatedMinutes: integer("estimated_minutes").default(30),
+  difficultyLevel: integer("difficulty_level").default(1), // 1=beginner, 2=intermediate, 3=advanced
+  status: trainingCourseStatusEnum("status").default("draft").notNull(),
+  // AI configuration for conversational training
+  aiSystemPrompt: text("ai_system_prompt"),
+  learningObjectives: jsonb("learning_objectives").$type<string[]>().default([]),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const trainingProgress = pgTable("training_progress", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  organizationId: uuid("organization_id")
+    .references(() => organizations.id, { onDelete: "cascade" })
+    .notNull(),
+  courseId: uuid("course_id")
+    .references(() => trainingCourses.id, { onDelete: "cascade" })
+    .notNull(),
+  status: trainingStatusEnum("status").default("not_started").notNull(),
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  score: integer("score"), // Percentage score from assessment
+  expiresAt: timestamp("expires_at"), // For annual training requirements
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const trainingAssessments = pgTable("training_assessments", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  courseId: uuid("course_id")
+    .references(() => trainingCourses.id, { onDelete: "cascade" })
+    .notNull(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  organizationId: uuid("organization_id")
+    .references(() => organizations.id, { onDelete: "cascade" })
+    .notNull(),
+  conversation: jsonb("conversation").$type<Array<{ role: string; content: string; timestamp: string }>>().default([]),
+  scenariosPresented: jsonb("scenarios_presented").$type<Array<{ scenario: string; userResponse: string; evaluation: string }>>().default([]),
+  evaluation: jsonb("evaluation").$type<{ summary: string; strengths: string[]; areasForImprovement: string[]; overallAssessment: string }>(),
+  passed: boolean("passed"),
+  score: integer("score"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Verification Tables
+export const evidence = pgTable("evidence", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id")
+    .references(() => organizations.id, { onDelete: "cascade" })
+    .notNull(),
+  requirementId: uuid("requirement_id")
+    .references(() => requirements.id, { onDelete: "cascade" })
+    .notNull(),
+  evidenceType: evidenceTypeEnum("evidence_type").notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  documentId: uuid("document_id").references(() => documents.id, { onDelete: "set null" }),
+  trainingProgressId: uuid("training_progress_id").references(() => trainingProgress.id, { onDelete: "set null" }),
+  submittedBy: uuid("submitted_by")
+    .references(() => users.id)
+    .notNull(),
+  submittedAt: timestamp("submitted_at").defaultNow().notNull(),
+  status: evidenceStatusEnum("status").default("pending").notNull(),
+  verifiedBy: uuid("verified_by").references(() => users.id),
+  verifiedAt: timestamp("verified_at"),
+  rejectionReason: text("rejection_reason"),
+  expiresAt: timestamp("expires_at"), // Some evidence expires (e.g., annual training)
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const policyAcknowledgments = pgTable("policy_acknowledgments", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  organizationId: uuid("organization_id")
+    .references(() => organizations.id, { onDelete: "cascade" })
+    .notNull(),
+  policyId: uuid("policy_id")
+    .references(() => policies.id, { onDelete: "cascade" })
+    .notNull(),
+  acknowledgedAt: timestamp("acknowledged_at").defaultNow().notNull(),
+  ipAddress: text("ip_address"),
+  signatureMethod: signatureMethodEnum("signature_method").default("checkbox").notNull(),
+  typedName: text("typed_name"), // If signature_method is typed_name
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const auditChecklists = pgTable("audit_checklists", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id")
+    .references(() => organizations.id, { onDelete: "cascade" })
+    .notNull(),
+  checklistType: checklistTypeEnum("checklist_type").notNull(),
+  title: text("title").notNull(),
+  items: jsonb("items").$type<Array<{ id: string; label: string; completed: boolean; completedAt?: string; completedBy?: string }>>().default([]),
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  completedBy: uuid("completed_by").references(() => users.id),
+  score: integer("score"), // Percentage of items completed
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ one }) => ({
   organization: one(organizations, {
@@ -224,6 +398,12 @@ export const organizationsRelations = relations(organizations, ({ many }) => ({
   tasks: many(tasks),
   documents: many(documents),
   auditLogs: many(auditLogs),
+  trainingCourses: many(trainingCourses),
+  trainingProgress: many(trainingProgress),
+  trainingAssessments: many(trainingAssessments),
+  evidence: many(evidence),
+  policyAcknowledgments: many(policyAcknowledgments),
+  auditChecklists: many(auditChecklists),
 }));
 
 export const requirementsRelations = relations(requirements, ({ one, many }) => ({
@@ -233,6 +413,7 @@ export const requirementsRelations = relations(requirements, ({ one, many }) => 
   }),
   tasks: many(tasks),
   documents: many(documents),
+  evidence: many(evidence),
 }));
 
 export const policiesRelations = relations(policies, ({ one, many }) => ({
@@ -245,6 +426,7 @@ export const policiesRelations = relations(policies, ({ one, many }) => ({
     references: [users.id],
   }),
   documents: many(documents),
+  acknowledgments: many(policyAcknowledgments),
 }));
 
 export const tasksRelations = relations(tasks, ({ one }) => ({
@@ -296,6 +478,100 @@ export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
   }),
 }));
 
+// Training Relations
+export const trainingCoursesRelations = relations(trainingCourses, ({ one, many }) => ({
+  organization: one(organizations, {
+    fields: [trainingCourses.organizationId],
+    references: [organizations.id],
+  }),
+  progress: many(trainingProgress),
+  assessments: many(trainingAssessments),
+}));
+
+export const trainingProgressRelations = relations(trainingProgress, ({ one }) => ({
+  user: one(users, {
+    fields: [trainingProgress.userId],
+    references: [users.id],
+  }),
+  organization: one(organizations, {
+    fields: [trainingProgress.organizationId],
+    references: [organizations.id],
+  }),
+  course: one(trainingCourses, {
+    fields: [trainingProgress.courseId],
+    references: [trainingCourses.id],
+  }),
+}));
+
+export const trainingAssessmentsRelations = relations(trainingAssessments, ({ one }) => ({
+  course: one(trainingCourses, {
+    fields: [trainingAssessments.courseId],
+    references: [trainingCourses.id],
+  }),
+  user: one(users, {
+    fields: [trainingAssessments.userId],
+    references: [users.id],
+  }),
+  organization: one(organizations, {
+    fields: [trainingAssessments.organizationId],
+    references: [organizations.id],
+  }),
+}));
+
+// Verification Relations
+export const evidenceRelations = relations(evidence, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [evidence.organizationId],
+    references: [organizations.id],
+  }),
+  requirement: one(requirements, {
+    fields: [evidence.requirementId],
+    references: [requirements.id],
+  }),
+  document: one(documents, {
+    fields: [evidence.documentId],
+    references: [documents.id],
+  }),
+  trainingProgress: one(trainingProgress, {
+    fields: [evidence.trainingProgressId],
+    references: [trainingProgress.id],
+  }),
+  submitter: one(users, {
+    fields: [evidence.submittedBy],
+    references: [users.id],
+  }),
+  verifier: one(users, {
+    fields: [evidence.verifiedBy],
+    references: [users.id],
+  }),
+}));
+
+export const policyAcknowledgmentsRelations = relations(policyAcknowledgments, ({ one }) => ({
+  user: one(users, {
+    fields: [policyAcknowledgments.userId],
+    references: [users.id],
+  }),
+  organization: one(organizations, {
+    fields: [policyAcknowledgments.organizationId],
+    references: [organizations.id],
+  }),
+  policy: one(policies, {
+    fields: [policyAcknowledgments.policyId],
+    references: [policies.id],
+  }),
+}));
+
+export const auditChecklistsRelations = relations(auditChecklists, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [auditChecklists.organizationId],
+    references: [organizations.id],
+  }),
+  completer: one(users, {
+    fields: [auditChecklists.completedBy],
+    references: [users.id],
+  }),
+}));
+
 // Type exports
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -311,3 +587,15 @@ export type Document = typeof documents.$inferSelect;
 export type NewDocument = typeof documents.$inferInsert;
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type NewAuditLog = typeof auditLogs.$inferInsert;
+export type TrainingCourse = typeof trainingCourses.$inferSelect;
+export type NewTrainingCourse = typeof trainingCourses.$inferInsert;
+export type TrainingProgress = typeof trainingProgress.$inferSelect;
+export type NewTrainingProgress = typeof trainingProgress.$inferInsert;
+export type TrainingAssessment = typeof trainingAssessments.$inferSelect;
+export type NewTrainingAssessment = typeof trainingAssessments.$inferInsert;
+export type Evidence = typeof evidence.$inferSelect;
+export type NewEvidence = typeof evidence.$inferInsert;
+export type PolicyAcknowledgment = typeof policyAcknowledgments.$inferSelect;
+export type NewPolicyAcknowledgment = typeof policyAcknowledgments.$inferInsert;
+export type AuditChecklist = typeof auditChecklists.$inferSelect;
+export type NewAuditChecklist = typeof auditChecklists.$inferInsert;

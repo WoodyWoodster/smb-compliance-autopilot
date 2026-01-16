@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
-import { createCheckoutSession, PLANS, type PlanId } from "@/lib/stripe";
+import { createCheckoutSession, PLANS, getPriceByLookupKey, type PlanId } from "@/lib/stripe";
 
 export async function POST(req: NextRequest) {
   try {
@@ -20,9 +20,17 @@ export async function POST(req: NextRequest) {
     }
 
     const plan = PLANS[planId as PlanId];
-    if (!plan || !plan.priceId) {
+    if (!plan) {
       return NextResponse.json(
         { error: "Invalid plan selected" },
+        { status: 400 }
+      );
+    }
+
+    const priceId = await getPriceByLookupKey(plan.lookupKey);
+    if (!priceId) {
+      return NextResponse.json(
+        { error: "Price not found for selected plan" },
         { status: 400 }
       );
     }
@@ -36,7 +44,7 @@ export async function POST(req: NextRequest) {
 
     const session = await createCheckoutSession(
       customerId,
-      plan.priceId,
+      priceId,
       organizationId,
       successUrl,
       cancelUrl

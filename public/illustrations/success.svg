@@ -1,0 +1,35 @@
+<svg width="200" height="160" viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background burst effect -->
+  <circle cx="100" cy="80" r="50" fill="#10B981" fill-opacity="0.05"/>
+  <circle cx="100" cy="80" r="35" fill="#10B981" fill-opacity="0.08"/>
+
+  <!-- Celebration rays -->
+  <path d="M100 25 L100 35" stroke="#F97316" stroke-width="2" stroke-linecap="round"/>
+  <path d="M100 125 L100 135" stroke="#F97316" stroke-width="2" stroke-linecap="round"/>
+  <path d="M45 80 L55 80" stroke="#F97316" stroke-width="2" stroke-linecap="round"/>
+  <path d="M145 80 L155 80" stroke="#F97316" stroke-width="2" stroke-linecap="round"/>
+  <path d="M62 42 L70 50" stroke="#0D9488" stroke-width="2" stroke-linecap="round"/>
+  <path d="M130 110 L138 118" stroke="#0D9488" stroke-width="2" stroke-linecap="round"/>
+  <path d="M130 50 L138 42" stroke="#0D9488" stroke-width="2" stroke-linecap="round"/>
+  <path d="M62 118 L70 110" stroke="#0D9488" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Main checkmark circle -->
+  <circle cx="100" cy="80" r="32" fill="white" stroke="#10B981" stroke-width="3"/>
+
+  <!-- Checkmark -->
+  <path d="M85 80 L95 90 L115 70" stroke="#10B981" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Confetti/sparkles -->
+  <circle cx="50" cy="50" r="3" fill="#F97316"/>
+  <circle cx="155" cy="45" r="4" fill="#0D9488"/>
+  <circle cx="40" cy="110" r="2" fill="#0D9488"/>
+  <circle cx="160" cy="115" r="3" fill="#F97316"/>
+
+  <!-- Stars -->
+  <path d="M170 65 L172 70 L177 70 L173 73 L175 78 L170 75 L165 78 L167 73 L163 70 L168 70 Z" fill="#F97316"/>
+  <path d="M35 75 L36 78 L39 78 L37 80 L38 83 L35 81 L32 83 L33 80 L31 78 L34 78 Z" fill="#0D9488"/>
+
+  <!-- Text placeholder -->
+  <rect x="60" y="140" width="80" height="4" rx="2" fill="#10B981" fill-opacity="0.3"/>
+  <rect x="70" y="150" width="60" height="3" rx="1.5" fill="#E7E5E4"/>
+</svg>

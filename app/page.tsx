@@ -1,471 +1,520 @@
 import Link from "next/link";
+import { auth } from "@clerk/nextjs/server";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
   Shield,
-  FileText,
-  CheckCircle2,
-  Clock,
-  Sparkles,
-  Lock,
   ArrowRight,
   Check,
-  Star,
+  Sparkles,
+  ArrowUpRight,
+  Play,
+  Quote,
 } from "lucide-react";
 import { PLANS } from "@/lib/stripe";
 
-export default function LandingPage() {
+const FRAMEWORKS = [
+  { name: "HIPAA", color: "bg-teal-500" },
+  { name: "SOC 2", color: "bg-coral-500" },
+  { name: "PCI-DSS", color: "bg-violet-500" },
+  { name: "GDPR", color: "bg-blue-500" },
+  { name: "ISO 27001", color: "bg-emerald-500" },
+];
+
+const STATS = [
+  { value: "2,400+", label: "Businesses protected" },
+  { value: "98%", label: "Audit pass rate" },
+  { value: "15min", label: "Average setup time" },
+];
+
+export default async function LandingPage() {
+  const { userId } = await auth();
+  const isAuthenticated = !!userId;
+
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-stone-200/50">
         <div className="container flex h-16 items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Shield className="h-6 w-6 text-primary" />
-            <span className="font-bold">Compliance Autopilot</span>
+          <Link href="/" className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-600">
+              <Shield className="h-5 w-5 text-white" />
+            </div>
+            <span className="font-semibold text-lg tracking-tight">Complify</span>
           </Link>
-          <nav className="hidden md:flex items-center gap-6">
-            <Link href="#features" className="text-sm font-medium hover:text-primary">
-              Features
+
+          <nav className="hidden md:flex items-center gap-8">
+            <Link href="#frameworks" className="text-sm text-stone-600 hover:text-stone-900 transition-colors">
+              Frameworks
             </Link>
-            <Link href="#pricing" className="text-sm font-medium hover:text-primary">
+            <Link href="#pricing" className="text-sm text-stone-600 hover:text-stone-900 transition-colors">
               Pricing
             </Link>
-            <Link href="#testimonials" className="text-sm font-medium hover:text-primary">
-              Testimonials
+            <Link href="#stories" className="text-sm text-stone-600 hover:text-stone-900 transition-colors">
+              Stories
             </Link>
           </nav>
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" asChild>
-              <Link href="/sign-in">Sign In</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/sign-up">Get Started</Link>
-            </Button>
+
+          <div className="flex items-center gap-3">
+            {isAuthenticated ? (
+              <Button variant="coral" size="sm" asChild>
+                <Link href="/dashboard">Go to Dashboard</Link>
+              </Button>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/sign-in">Sign in</Link>
+                </Button>
+                <Button variant="coral" size="sm" asChild>
+                  <Link href="/sign-up">Start free</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="container py-24 md:py-32">
-        <div className="mx-auto max-w-4xl text-center">
-          <Badge className="mb-4" variant="secondary">
-            TurboTax for HIPAA Compliance
-          </Badge>
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-            HIPAA Compliance{" "}
-            <span className="text-primary">Made Simple</span>
-          </h1>
-          <p className="mt-6 text-lg text-muted-foreground md:text-xl">
-            AI-powered compliance management for dental practices, chiropractic
-            offices, med spas, and small healthcare practices. Stop worrying
-            about HIPAA and focus on your patients.
-          </p>
-          <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
-            <Button size="lg" asChild>
-              <Link href="/sign-up">
-                Start Free Trial
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link href="#features">See How It Works</Link>
-            </Button>
-          </div>
-          <p className="mt-4 text-sm text-muted-foreground">
-            No credit card required. 14-day free trial.
-          </p>
-        </div>
-      </section>
+      {/* Hero Section - Editorial Style */}
+      <section className="pt-32 pb-24 relative overflow-hidden">
+        {/* Decorative background elements */}
+        <div className="absolute top-20 right-[10%] w-72 h-72 bg-teal-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 left-[5%] w-96 h-96 bg-coral-500/10 rounded-full blur-3xl" />
 
-      {/* Social Proof */}
-      <section className="border-y bg-muted/50">
-        <div className="container py-8">
-          <p className="text-center text-sm text-muted-foreground">
-            Trusted by 500+ healthcare practices across the US
-          </p>
-          <div className="mt-6 flex flex-wrap justify-center gap-8 opacity-50">
-            {["Dental Group", "ChiroHealth", "MedSpa Pro", "PT Solutions", "VisionCare"].map(
-              (name) => (
-                <span key={name} className="text-lg font-semibold">
-                  {name}
-                </span>
-              )
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="container py-24">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Everything you need for HIPAA compliance
-          </h2>
-          <p className="mt-4 text-muted-foreground">
-            From assessment to documentation, we automate the tedious parts so
-            you can focus on patient care.
-          </p>
-        </div>
-
-        <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          <Card>
-            <CardHeader>
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                <CheckCircle2 className="h-6 w-6 text-primary" />
-              </div>
-              <CardTitle className="mt-4">Compliance Assessment</CardTitle>
-              <CardDescription>
-                Answer simple questions about your practice and get a
-                personalized compliance roadmap based on your specific
-                situation.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                <Sparkles className="h-6 w-6 text-primary" />
-              </div>
-              <CardTitle className="mt-4">AI Policy Generator</CardTitle>
-              <CardDescription>
-                Generate professional, legally-compliant HIPAA policies
-                customized for your practice type in minutes, not days.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                <Clock className="h-6 w-6 text-primary" />
-              </div>
-              <CardTitle className="mt-4">Task Management</CardTitle>
-              <CardDescription>
-                Never miss a compliance deadline with automated reminders for
-                training, reviews, and assessments.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                <FileText className="h-6 w-6 text-primary" />
-              </div>
-              <CardTitle className="mt-4">Document Storage</CardTitle>
-              <CardDescription>
-                Securely store all your compliance documents - policies, BAAs,
-                training records, and more - in one place.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                <Shield className="h-6 w-6 text-primary" />
-              </div>
-              <CardTitle className="mt-4">Requirements Tracking</CardTitle>
-              <CardDescription>
-                Track all HIPAA requirements in one dashboard. See your
-                compliance score and know exactly what needs attention.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                <Lock className="h-6 w-6 text-primary" />
-              </div>
-              <CardTitle className="mt-4">Audit Ready</CardTitle>
-              <CardDescription>
-                Always be prepared for audits with organized documentation and
-                evidence of your compliance efforts.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section className="bg-muted/50 py-24">
-        <div className="container">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Get compliant in 3 simple steps
-            </h2>
-          </div>
-
-          <div className="mt-16 grid gap-8 md:grid-cols-3">
-            <div className="text-center">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">
-                1
-              </div>
-              <h3 className="mt-4 text-xl font-semibold">Take Assessment</h3>
-              <p className="mt-2 text-muted-foreground">
-                Answer questions about your practice to identify your specific
-                compliance requirements.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">
-                2
-              </div>
-              <h3 className="mt-4 text-xl font-semibold">Generate Policies</h3>
-              <p className="mt-2 text-muted-foreground">
-                Use AI to create customized policies and procedures tailored to
-                your practice.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">
-                3
-              </div>
-              <h3 className="mt-4 text-xl font-semibold">Stay Compliant</h3>
-              <p className="mt-2 text-muted-foreground">
-                Track tasks, store documents, and maintain ongoing compliance
-                with automated reminders.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section id="pricing" className="container py-24">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Simple, transparent pricing
-          </h2>
-          <p className="mt-4 text-muted-foreground">
-            Choose the plan that fits your practice. All plans include a 14-day
-            free trial.
-          </p>
-        </div>
-
-        <div className="mt-16 grid gap-8 md:grid-cols-3">
-          {(Object.entries(PLANS) as [keyof typeof PLANS, typeof PLANS[keyof typeof PLANS]][]).map(
-            ([planId, plan]) => {
-              const isProfessional = planId === "professional";
-
-              return (
-                <Card
-                  key={planId}
-                  className={`relative ${isProfessional ? "border-primary shadow-lg scale-105" : ""}`}
+        <div className="container relative">
+          <div className="max-w-4xl mx-auto text-center">
+            {/* Framework badges */}
+            <div className="flex items-center justify-center gap-2 mb-8">
+              {FRAMEWORKS.map((fw) => (
+                <span
+                  key={fw.name}
+                  className={`${fw.color} text-white text-xs font-medium px-3 py-1 rounded-full`}
                 >
-                  {isProfessional && (
-                    <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
-                      Most Popular
-                    </Badge>
-                  )}
-                  <CardHeader>
-                    <CardTitle>{plan.name}</CardTitle>
-                    <CardDescription>
-                      <span className="text-4xl font-bold text-foreground">
-                        ${plan.price}
-                      </span>
-                      <span className="text-muted-foreground">/month</span>
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-3">
-                      {plan.features.map((feature, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <Check className="h-4 w-4 mt-0.5 text-green-600 shrink-0" />
-                          <span className="text-sm">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                  <CardFooter>
-                    <Button
-                      className="w-full"
-                      variant={isProfessional ? "default" : "outline"}
-                      asChild
-                    >
-                      <Link href="/sign-up">Start Free Trial</Link>
-                    </Button>
-                  </CardFooter>
-                </Card>
-              );
-            }
-          )}
-        </div>
-      </section>
+                  {fw.name}
+                </span>
+              ))}
+            </div>
 
-      {/* Testimonials */}
-      <section id="testimonials" className="bg-muted/50 py-24">
-        <div className="container">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Loved by healthcare practices
-            </h2>
+            <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-[0.9] tracking-tight">
+              Compliance,{" "}
+              <span className="italic text-teal-600">
+                finally
+              </span>{" "}
+              on autopilot
+            </h1>
+
+            <p className="mt-8 text-xl text-stone-600 max-w-2xl mx-auto leading-relaxed">
+              Stop drowning in spreadsheets and consultant fees. Our AI maps your business
+              to the exact requirements you need—whether that&apos;s HIPAA, SOC 2, PCI-DSS, or GDPR.
+            </p>
+
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button variant="coral" size="xl" asChild>
+                <Link href="/sign-up">
+                  Start your assessment
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+              <Button variant="ghost" size="lg" asChild>
+                <Link href="#demo" className="group">
+                  <Play className="mr-2 h-4 w-4 text-teal-600" />
+                  Watch demo
+                  <span className="text-stone-400 ml-1">2:30</span>
+                </Link>
+              </Button>
+            </div>
           </div>
 
-          <div className="mt-16 grid gap-8 md:grid-cols-3">
-            {[
-              {
-                quote:
-                  "Finally, a HIPAA solution that doesn't require a law degree to understand. We went from stressed to compliant in a week.",
-                author: "Dr. Sarah Chen",
-                title: "Owner, Bright Smile Dental",
-              },
-              {
-                quote:
-                  "The AI policy generator saved us thousands compared to hiring a consultant. The policies are professional and actually tailored to our practice.",
-                author: "Michael Torres",
-                title: "Practice Manager, SpineWorks Chiro",
-              },
-              {
-                quote:
-                  "I used to dread HIPAA compliance. Now I just check my dashboard and know exactly where we stand. The task reminders are a lifesaver.",
-                author: "Dr. Emily Park",
-                title: "Medical Director, Glow MedSpa",
-              },
-            ].map((testimonial, index) => (
-              <Card key={index}>
-                <CardContent className="pt-6">
-                  <div className="flex gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="h-4 w-4 fill-yellow-400 text-yellow-400"
-                      />
-                    ))}
-                  </div>
-                  <blockquote className="mt-4 text-muted-foreground">
-                    &ldquo;{testimonial.quote}&rdquo;
-                  </blockquote>
-                  <div className="mt-4">
-                    <p className="font-semibold">{testimonial.author}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {testimonial.title}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+          {/* Stats bar */}
+          <div className="mt-20 flex items-center justify-center gap-12 md:gap-20">
+            {STATS.map((stat) => (
+              <div key={stat.label} className="text-center">
+                <div className="text-3xl md:text-4xl font-semibold text-teal-600">{stat.value}</div>
+                <div className="text-sm text-stone-500 mt-1">{stat.label}</div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="container py-24">
-        <div className="mx-auto max-w-3xl rounded-2xl bg-primary px-8 py-16 text-center text-primary-foreground">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Ready to simplify HIPAA compliance?
-          </h2>
-          <p className="mt-4 text-primary-foreground/80">
-            Join hundreds of healthcare practices who have automated their
-            compliance with Compliance Autopilot.
-          </p>
-          <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
-            <Button size="lg" variant="secondary" asChild>
-              <Link href="/sign-up">
-                Start Free Trial
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+      {/* Frameworks Section - Asymmetric grid */}
+      <section id="frameworks" className="py-24 bg-stone-50">
+        <div className="container">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <span className="text-teal-600 text-sm font-semibold uppercase tracking-wider">
+                Multi-framework
+              </span>
+              <h2 className="font-display text-4xl md:text-5xl mt-4 leading-tight">
+                One platform,<br />
+                <span className="italic text-stone-500">every framework</span>
+              </h2>
+              <p className="mt-6 text-lg text-stone-600 leading-relaxed">
+                Whether you&apos;re a healthcare startup needing HIPAA, a SaaS company pursuing
+                SOC 2, or an e-commerce business handling PCI-DSS—we&apos;ve mapped the requirements
+                so you don&apos;t have to.
+              </p>
+
+              <div className="mt-8 space-y-4">
+                {[
+                  "AI analyzes your business and suggests applicable frameworks",
+                  "Generate policies customized to your industry and size",
+                  "Track requirements across multiple frameworks simultaneously",
+                  "Evidence collection and audit preparation in one place",
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <div className="mt-1 flex h-5 w-5 items-center justify-center rounded-full bg-teal-100">
+                      <Check className="h-3 w-3 text-teal-600" />
+                    </div>
+                    <span className="text-stone-700">{item}</span>
+                  </div>
+                ))}
+              </div>
+
+              <Button variant="outline" size="lg" className="mt-8" asChild>
+                <Link href="/sign-up">
+                  See which frameworks apply to you
+                  <ArrowUpRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+
+            {/* Visual framework cards - staggered */}
+            <div className="relative">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-4">
+                  <FrameworkCard
+                    name="HIPAA"
+                    desc="Healthcare data protection"
+                    color="teal"
+                    requirements={164}
+                  />
+                  <FrameworkCard
+                    name="PCI-DSS"
+                    desc="Payment card security"
+                    color="violet"
+                    requirements={78}
+                  />
+                </div>
+                <div className="space-y-4 mt-8">
+                  <FrameworkCard
+                    name="SOC 2"
+                    desc="Service organization controls"
+                    color="coral"
+                    requirements={116}
+                  />
+                  <FrameworkCard
+                    name="GDPR"
+                    desc="EU data privacy"
+                    color="blue"
+                    requirements={99}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
-          <p className="mt-4 text-sm text-primary-foreground/60">
-            No credit card required. 14-day free trial.
-          </p>
+        </div>
+      </section>
+
+      {/* How it works - Visual flow instead of 1-2-3 */}
+      <section className="py-24">
+        <div className="container">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <span className="text-coral-500 text-sm font-semibold uppercase tracking-wider">
+              How it works
+            </span>
+            <h2 className="font-display text-4xl md:text-5xl mt-4">
+              From zero to audit-ready
+            </h2>
+          </div>
+
+          {/* Visual flow cards */}
+          <div className="relative max-w-5xl mx-auto">
+            {/* Connecting line */}
+            <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-stone-300 to-transparent" />
+
+            <div className="grid md:grid-cols-3 gap-8">
+              <FlowCard
+                icon={<Sparkles className="h-6 w-6" />}
+                title="Tell us about your business"
+                description="Answer a few questions about what you do, what data you handle, and where you operate. Our AI figures out the rest."
+                accent="teal"
+              />
+              <FlowCard
+                icon={<Shield className="h-6 w-6" />}
+                title="Get your roadmap"
+                description="We map your answers to specific compliance requirements and generate policies tailored to your business—not generic templates."
+                accent="coral"
+              />
+              <FlowCard
+                icon={<Check className="h-6 w-6" />}
+                title="Stay compliant"
+                description="Track progress, collect evidence, and get reminders. When auditors come knocking, you&apos;ll be ready."
+                accent="emerald"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Social proof - Editorial testimonial */}
+      <section id="stories" className="py-24 bg-teal-600 text-white overflow-hidden">
+        <div className="container">
+          <div className="max-w-4xl mx-auto text-center">
+            <Quote className="h-12 w-12 mx-auto mb-8 opacity-40" />
+            <blockquote className="font-display text-3xl md:text-4xl lg:text-5xl leading-tight italic">
+              &ldquo;We went from dreading our SOC 2 audit to actually feeling confident.
+              The AI-generated policies were better than what our $15k consultant produced.&rdquo;
+            </blockquote>
+            <div className="mt-10">
+              <div className="font-semibold text-lg">Marcus Chen</div>
+              <div className="text-teal-200">CTO, Streamline Analytics</div>
+              <div className="mt-4 flex items-center justify-center gap-2">
+                <span className="bg-white/20 text-white text-xs font-medium px-3 py-1 rounded-full">
+                  SOC 2 Type II
+                </span>
+                <span className="bg-white/20 text-white text-xs font-medium px-3 py-1 rounded-full">
+                  Series A Startup
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing - Premium feel */}
+      <section id="pricing" className="py-24">
+        <div className="container">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <span className="text-teal-600 text-sm font-semibold uppercase tracking-wider">
+              Pricing
+            </span>
+            <h2 className="font-display text-4xl md:text-5xl mt-4">
+              Invest in peace of mind
+            </h2>
+            <p className="mt-4 text-lg text-stone-600">
+              Compare to $10k+ consultants or $50k+ enterprise tools.
+              All plans include a 14-day free trial.
+            </p>
+          </div>
+
+          <div className="max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-3 gap-6">
+              {(Object.entries(PLANS) as [keyof typeof PLANS, (typeof PLANS)[keyof typeof PLANS]][]).map(
+                ([planId, plan]) => {
+                  const isPopular = planId === "professional";
+
+                  return (
+                    <div
+                      key={planId}
+                      className={`relative rounded-2xl p-8 transition-all duration-300 hover-lift ${
+                        isPopular
+                          ? "bg-teal-600 text-white shadow-glow-teal"
+                          : "bg-white border border-stone-200 shadow-soft"
+                      }`}
+                    >
+                      {isPopular && (
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-coral-500 text-white text-xs font-semibold px-4 py-1 rounded-full">
+                          Most popular
+                        </div>
+                      )}
+
+                      <div className="mb-6">
+                        <h3 className={`text-lg font-semibold ${isPopular ? "text-white" : "text-stone-900"}`}>
+                          {plan.name}
+                        </h3>
+                        <div className="mt-4 flex items-baseline gap-1">
+                          <span className={`text-4xl font-bold ${isPopular ? "text-white" : "text-stone-900"}`}>
+                            ${plan.price}
+                          </span>
+                          <span className={isPopular ? "text-teal-200" : "text-stone-500"}>
+                            /month
+                          </span>
+                        </div>
+                      </div>
+
+                      <ul className="space-y-3 mb-8">
+                        {plan.features.map((feature, i) => (
+                          <li key={i} className="flex items-start gap-3">
+                            <Check className={`h-5 w-5 mt-0.5 shrink-0 ${isPopular ? "text-teal-200" : "text-teal-600"}`} />
+                            <span className={`text-sm ${isPopular ? "text-teal-50" : "text-stone-600"}`}>
+                              {feature}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      <Button
+                        variant={isPopular ? "secondary" : "outline"}
+                        className={`w-full ${isPopular ? "bg-white text-teal-600 hover:bg-teal-50" : ""}`}
+                        asChild
+                      >
+                        <Link href="/sign-up">Start free trial</Link>
+                      </Button>
+                    </div>
+                  );
+                }
+              )}
+            </div>
+
+            <p className="text-center mt-8 text-sm text-stone-500">
+              Need enterprise features?{" "}
+              <Link href="#" className="text-teal-600 hover:underline">
+                Talk to sales
+              </Link>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="py-24 bg-stone-900 text-white">
+        <div className="container">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="font-display text-4xl md:text-5xl lg:text-6xl">
+              Ready to stop<br />
+              <span className="italic text-teal-400">dreading</span> compliance?
+            </h2>
+            <p className="mt-6 text-lg text-stone-400 max-w-xl mx-auto">
+              Join 2,400+ businesses who&apos;ve automated their compliance journey.
+              Start your free assessment today.
+            </p>
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button variant="coral" size="xl" asChild>
+                <Link href="/sign-up">
+                  Start free assessment
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+            </div>
+            <p className="mt-6 text-sm text-stone-500">
+              No credit card required · 14-day free trial · Cancel anytime
+            </p>
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t py-12">
+      <footer className="py-16 border-t border-stone-200">
         <div className="container">
-          <div className="grid gap-8 md:grid-cols-4">
-            <div>
-              <Link href="/" className="flex items-center gap-2">
-                <Shield className="h-6 w-6 text-primary" />
-                <span className="font-bold">Compliance Autopilot</span>
+          <div className="grid gap-8 md:grid-cols-5">
+            <div className="md:col-span-2">
+              <Link href="/" className="flex items-center gap-2.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-600">
+                  <Shield className="h-5 w-5 text-white" />
+                </div>
+                <span className="font-semibold text-lg">Complify</span>
               </Link>
-              <p className="mt-4 text-sm text-muted-foreground">
-                AI-powered HIPAA compliance for small healthcare practices.
+              <p className="mt-4 text-sm text-stone-500 max-w-xs">
+                AI-powered compliance for modern businesses.
+                HIPAA, SOC 2, PCI-DSS, GDPR, and beyond.
               </p>
             </div>
+
             <div>
-              <h3 className="font-semibold">Product</h3>
-              <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-                <li>
-                  <Link href="#features" className="hover:text-foreground">
-                    Features
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#pricing" className="hover:text-foreground">
-                    Pricing
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-foreground">
-                    Security
-                  </Link>
-                </li>
+              <h4 className="font-semibold text-stone-900 mb-4">Product</h4>
+              <ul className="space-y-3 text-sm text-stone-500">
+                <li><Link href="#" className="hover:text-stone-900 transition-colors">Frameworks</Link></li>
+                <li><Link href="#" className="hover:text-stone-900 transition-colors">Pricing</Link></li>
+                <li><Link href="#" className="hover:text-stone-900 transition-colors">Security</Link></li>
               </ul>
             </div>
+
             <div>
-              <h3 className="font-semibold">Company</h3>
-              <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-                <li>
-                  <Link href="#" className="hover:text-foreground">
-                    About
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-foreground">
-                    Blog
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-foreground">
-                    Contact
-                  </Link>
-                </li>
+              <h4 className="font-semibold text-stone-900 mb-4">Company</h4>
+              <ul className="space-y-3 text-sm text-stone-500">
+                <li><Link href="#" className="hover:text-stone-900 transition-colors">About</Link></li>
+                <li><Link href="#" className="hover:text-stone-900 transition-colors">Blog</Link></li>
+                <li><Link href="#" className="hover:text-stone-900 transition-colors">Careers</Link></li>
               </ul>
             </div>
+
             <div>
-              <h3 className="font-semibold">Legal</h3>
-              <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-                <li>
-                  <Link href="#" className="hover:text-foreground">
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-foreground">
-                    Terms of Service
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="hover:text-foreground">
-                    BAA
-                  </Link>
-                </li>
+              <h4 className="font-semibold text-stone-900 mb-4">Legal</h4>
+              <ul className="space-y-3 text-sm text-stone-500">
+                <li><Link href="#" className="hover:text-stone-900 transition-colors">Privacy</Link></li>
+                <li><Link href="#" className="hover:text-stone-900 transition-colors">Terms</Link></li>
+                <li><Link href="#" className="hover:text-stone-900 transition-colors">Security</Link></li>
               </ul>
             </div>
           </div>
-          <div className="mt-12 border-t pt-8 text-center text-sm text-muted-foreground">
-            <p>
-              © {new Date().getFullYear()} Compliance Autopilot. All rights
-              reserved.
-            </p>
+
+          <div className="mt-12 pt-8 border-t border-stone-200 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-stone-500">
+            <p>© {new Date().getFullYear()} Complify. All rights reserved.</p>
+            <div className="flex items-center gap-4">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                All systems operational
+              </span>
+            </div>
           </div>
         </div>
       </footer>
+    </div>
+  );
+}
+
+function FrameworkCard({
+  name,
+  desc,
+  color,
+  requirements
+}: {
+  name: string;
+  desc: string;
+  color: string;
+  requirements: number;
+}) {
+  const colorClasses = {
+    teal: "border-teal-200 bg-teal-50",
+    coral: "border-coral-200 bg-coral-50",
+    violet: "border-violet-200 bg-violet-50",
+    blue: "border-blue-200 bg-blue-50",
+  };
+
+  const accentClasses = {
+    teal: "bg-teal-600",
+    coral: "bg-coral-500",
+    violet: "bg-violet-600",
+    blue: "bg-blue-600",
+  };
+
+  return (
+    <div className={`rounded-2xl border p-6 hover-lift ${colorClasses[color as keyof typeof colorClasses]}`}>
+      <div className={`w-10 h-10 rounded-xl ${accentClasses[color as keyof typeof accentClasses]} flex items-center justify-center mb-4`}>
+        <Shield className="h-5 w-5 text-white" />
+      </div>
+      <h3 className="font-semibold text-stone-900">{name}</h3>
+      <p className="text-sm text-stone-600 mt-1">{desc}</p>
+      <div className="mt-4 text-xs text-stone-500">
+        {requirements} requirements mapped
+      </div>
+    </div>
+  );
+}
+
+function FlowCard({
+  icon,
+  title,
+  description,
+  accent,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  accent: string;
+}) {
+  const accentClasses = {
+    teal: "bg-teal-100 text-teal-600",
+    coral: "bg-coral-100 text-coral-600",
+    emerald: "bg-emerald-100 text-emerald-600",
+  };
+
+  return (
+    <div className="relative bg-white rounded-2xl p-8 shadow-soft hover-lift">
+      <div className={`w-12 h-12 rounded-xl ${accentClasses[accent as keyof typeof accentClasses]} flex items-center justify-center mb-6`}>
+        {icon}
+      </div>
+      <h3 className="font-semibold text-lg text-stone-900 mb-3">{title}</h3>
+      <p className="text-stone-600 leading-relaxed">{description}</p>
     </div>
   );
 }
