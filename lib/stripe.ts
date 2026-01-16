@@ -43,6 +43,7 @@ export const PLANS = {
       policies: 5,
       users: 1,
       regulations: ["hipaa"],
+      aiGenerations: 20,
     },
   },
   professional: {
@@ -61,6 +62,7 @@ export const PLANS = {
       policies: -1, // unlimited
       users: 5,
       regulations: ["hipaa", "osha", "state_privacy"],
+      aiGenerations: 100,
     },
   },
   business: {
@@ -79,6 +81,7 @@ export const PLANS = {
       policies: -1,
       users: -1,
       regulations: ["hipaa", "osha", "state_privacy", "pci_dss"],
+      aiGenerations: -1, // unlimited
     },
   },
 } as const;

@@ -1,19 +1,14 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Check } from "lucide-react";
 import { PLANS } from "@/lib/stripe";
 import { PricingCard } from "@/components/settings/pricing-card";
 import { OrganizationSettings } from "@/components/settings/organization-settings";
+import { AIUsageCard } from "@/components/settings/ai-usage-card";
+import { db } from "@/lib/db";
+import { users, organizations } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
+import { getAIUsageStats } from "@/lib/ai/usage-limits";
 
 export const dynamic = "force-dynamic";
 
@@ -24,14 +19,65 @@ export default async function SettingsPage() {
     redirect("/sign-in");
   }
 
-  // TODO: Fetch organization data from database
-  const organization = {
+  // Fetch user and organization from database
+  const [user] = await db
+    .select({
+      organizationId: users.organizationId,
+    })
+    .from(users)
+    .where(eq(users.clerkId, userId))
+    .limit(1);
+
+  let organization: {
+    id: string;
+    name: string;
+    type: string;
+    subscriptionTier: "starter" | "professional" | "business";
+    stripeCustomerId: string | null;
+  } = {
     id: "org_123",
     name: "Sample Dental Practice",
     type: "dental",
-    subscriptionTier: "starter" as const,
+    subscriptionTier: "starter",
     stripeCustomerId: null,
   };
+
+  let aiUsage = {
+    used: 0,
+    limit: 20,
+    resetAt: new Date(),
+  };
+
+  if (user?.organizationId) {
+    const [org] = await db
+      .select({
+        id: organizations.id,
+        name: organizations.name,
+        type: organizations.type,
+        subscriptionTier: organizations.subscriptionTier,
+        stripeCustomerId: organizations.stripeCustomerId,
+      })
+      .from(organizations)
+      .where(eq(organizations.id, user.organizationId))
+      .limit(1);
+
+    if (org) {
+      organization = {
+        id: org.id,
+        name: org.name,
+        type: org.type || "other",
+        subscriptionTier: (org.subscriptionTier || "starter") as "starter" | "professional" | "business",
+        stripeCustomerId: org.stripeCustomerId,
+      };
+
+      const usageStats = await getAIUsageStats(org.id);
+      aiUsage = {
+        used: usageStats.limit === -1 ? 0 : usageStats.limit - usageStats.remaining,
+        limit: usageStats.limit,
+        resetAt: usageStats.resetAt,
+      };
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -44,6 +90,13 @@ export default async function SettingsPage() {
 
       {/* Organization Settings */}
       <OrganizationSettings organization={organization} />
+
+      {/* AI Usage */}
+      <AIUsageCard
+        used={aiUsage.used}
+        limit={aiUsage.limit}
+        resetAt={aiUsage.resetAt}
+      />
 
       <Separator />
 

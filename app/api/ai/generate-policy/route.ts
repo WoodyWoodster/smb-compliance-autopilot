@@ -6,6 +6,13 @@ import {
   policyTemplates,
   type PolicyGenerationContext,
 } from "@/lib/ai/policy-generator";
+import { db } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
+import {
+  checkAIUsageLimit,
+  incrementAIUsage,
+} from "@/lib/ai/usage-limits";
 
 const anthropic = createAnthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -36,6 +43,36 @@ export async function POST(req: NextRequest) {
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Get user's organization
+    const [user] = await db
+      .select({
+        organizationId: users.organizationId,
+      })
+      .from(users)
+      .where(eq(users.clerkId, userId))
+      .limit(1);
+
+    if (!user?.organizationId) {
+      return NextResponse.json(
+        { error: "Organization not found" },
+        { status: 400 }
+      );
+    }
+
+    // Check AI usage limit
+    const usageLimit = await checkAIUsageLimit(user.organizationId);
+    if (!usageLimit.allowed) {
+      return NextResponse.json(
+        {
+          error: "AI generation limit reached",
+          limit: usageLimit.limit,
+          remaining: usageLimit.remaining,
+          resetAt: usageLimit.resetAt.toISOString(),
+        },
+        { status: 429 }
+      );
     }
 
     const body = await req.json();
@@ -89,6 +126,9 @@ ${template.sections.map((s, i) => `${i + 1}. ${s}`).join("\n")}
 Please generate a comprehensive, professionally-formatted policy document that covers all required sections.
 Use clear headers, numbered sections, and bullet points where appropriate.
 The policy should be approximately ${template.estimatedLength}.`;
+
+    // Increment usage before streaming
+    await incrementAIUsage(user.organizationId);
 
     const result = streamText({
       model: anthropic("claude-sonnet-4-20250514"),

@@ -104,6 +104,9 @@ export const organizations = pgTable("organizations", {
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
   subscriptionStatus: text("subscription_status").default("active"),
+  // AI Usage Tracking
+  aiGenerationsCount: integer("ai_generations_count").default(0),
+  aiGenerationsResetAt: timestamp("ai_generations_reset_at").defaultNow(),
   // Metadata
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),

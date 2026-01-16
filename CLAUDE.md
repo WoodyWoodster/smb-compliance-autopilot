@@ -17,7 +17,8 @@ AI-powered HIPAA compliance management platform for small healthcare practices.
 
 - **Framework:** Next.js 15+ with App Router, React 19+, TypeScript
 - **Styling:** Tailwind CSS v4, shadcn/ui components
-- **Database:** Vercel Postgres with Drizzle ORM
+- **Database:** Neon Postgres with Drizzle ORM
+- **Package Manager:** bun
 - **Storage:** Vercel Blob for documents
 - **Cache:** Vercel KV
 - **Auth:** Clerk
@@ -83,18 +84,18 @@ Key tables:
 ## Development Commands
 
 ```bash
-npm run dev          # Start dev server with Turbopack
-npm run build        # Production build
-npm run db:generate  # Generate Drizzle migrations
-npm run db:migrate   # Run migrations
-npm run db:push      # Push schema to database
-npm run db:studio    # Open Drizzle Studio
+bun run dev          # Start dev server with Turbopack
+bun run build        # Production build
+bun run db:generate  # Generate Drizzle migrations
+bun run db:migrate   # Run migrations
+bun run db:push      # Push schema to database
+bun run db:studio    # Open Drizzle Studio
 ```
 
 ## Environment Variables
 
 Copy `.env.example` to `.env.local` and fill in:
-- Database: `POSTGRES_URL` (Vercel Postgres)
+- Database: `DATABASE_URL` (Neon Postgres)
 - Blob: `BLOB_READ_WRITE_TOKEN`
 - KV: `KV_URL`, `KV_REST_API_*`
 - Clerk: `CLERK_SECRET_KEY`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
@@ -142,6 +143,26 @@ Secure document management via Vercel Blob:
 - Certificates
 - BAAs
 - Audit reports
+
+## Potential Integrations
+
+### High Priority
+- **Practice Management/EHR:** Dentrix, Eaglesoft (dental), ChiroTouch (chiro), Jane App, SimplePractice (therapy), DrChrono, athenahealth
+- **HR/Payroll:** Gusto, Rippling, BambooHR - for tracking employee training and access management
+- **E-Signature:** DocuSign, HelloSign, PandaDoc - for BAAs, policy acknowledgments, training sign-offs
+
+### Medium Priority
+- **Communication:** Slack, Microsoft Teams, Google Workspace - alerts, reminders, calendar integration
+- **Cloud Providers:** AWS, Google Cloud, Microsoft Azure - assess cloud setup for technical safeguards
+- **Security Training:** KnowBe4, Proofpoint - import training completion records
+- **Identity/Access:** Okta, Microsoft Entra ID, 1Password, LastPass - access control compliance
+
+### Lower Priority
+- **Accounting:** QuickBooks, Xero - identify vendors who may be Business Associates
+- **IT/MDM:** Jamf, Kandji, Microsoft Intune - device encryption and mobile device management
+
+### MVP Recommendation
+Start with Gusto (HR/training), DocuSign (signatures), and Slack (notifications).
 
 ## Code Patterns
 
