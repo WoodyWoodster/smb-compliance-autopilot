@@ -109,8 +109,7 @@ export function ScenarioAssessment({ course }: ScenarioAssessmentProps) {
 
       // Check if training is complete
       if (assistantContent.includes("TRAINING_COMPLETE")) {
-        setIsComplete(true);
-        setAssessmentResult({
+        const result = {
           passed: true,
           score: 88,
           summary: "You demonstrated a solid understanding of the key concepts. Your responses showed good practical judgment in handling real-world scenarios.",
@@ -124,7 +123,27 @@ export function ScenarioAssessment({ course }: ScenarioAssessmentProps) {
           areasForImprovement: [
             "Review minimum necessary requirements for specific scenarios",
           ],
-        });
+        };
+
+        setIsComplete(true);
+        setAssessmentResult(result);
+
+        // Save completion to database
+        try {
+          await fetch("/api/training/complete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              courseId: course.id,
+              score: result.score,
+              passed: result.passed,
+              conversation: [...newMessages, { role: "assistant", content: assistantContent }],
+              evaluation: result,
+            }),
+          });
+        } catch (err) {
+          console.error("Failed to save training completion:", err);
+        }
       }
     } catch (error) {
       console.error("Error sending message:", error);

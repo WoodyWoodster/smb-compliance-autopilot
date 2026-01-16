@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Card,
@@ -35,22 +35,11 @@ import {
 interface TrainingProgressData {
   courseId: string;
   status: "not_started" | "in_progress" | "completed" | "expired";
-  score?: number;
-  completedAt?: string;
+  score?: number | null;
+  completedAt?: string | null;
 }
 
-// Mock progress data - in production, this would come from the database
-const mockProgress: TrainingProgressData[] = [
-  { courseId: "hipaa-privacy-basics", status: "completed", score: 92, completedAt: "2026-01-10" },
-  { courseId: "security-awareness", status: "in_progress" },
-];
-
-function getProgressForCourse(courseId: string): TrainingProgressData | undefined {
-  return mockProgress.find((p) => p.courseId === courseId);
-}
-
-function TrainingCard({ module }: { module: TrainingModule }) {
-  const progress = getProgressForCourse(module.id);
+function TrainingCard({ module, progress }: { module: TrainingModule; progress?: TrainingProgressData }) {
   const categoryColor = categoryColors[module.category] || "bg-gray-100 text-gray-800";
 
   return (
@@ -107,7 +96,7 @@ function TrainingCard({ module }: { module: TrainingModule }) {
             <span>Interactive AI conversation</span>
           </div>
         </div>
-        {progress?.score && (
+        {progress?.score != null && (
           <div className="mt-4">
             <div className="flex items-center justify-between text-sm mb-1">
               <span>Score</span>
@@ -145,6 +134,29 @@ function TrainingCard({ module }: { module: TrainingModule }) {
 
 export function TrainingCatalog() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [progressData, setProgressData] = useState<TrainingProgressData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchProgress() {
+      try {
+        const response = await fetch("/api/training/progress");
+        if (response.ok) {
+          const data = await response.json();
+          setProgressData(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch training progress:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchProgress();
+  }, []);
+
+  const getProgressForCourse = (courseId: string): TrainingProgressData | undefined => {
+    return progressData.find((p) => p.courseId === courseId);
+  };
 
   const categories = ["all", ...new Set(trainingModules.map((m) => m.category))];
 
@@ -153,7 +165,7 @@ export function TrainingCatalog() {
       ? trainingModules
       : trainingModules.filter((m) => m.category === selectedCategory);
 
-  const completedCount = mockProgress.filter((p) => p.status === "completed").length;
+  const completedCount = progressData.filter((p) => p.status === "completed").length;
   const totalCount = trainingModules.length;
   const overallProgress = Math.round((completedCount / totalCount) * 100);
 
@@ -232,7 +244,7 @@ export function TrainingCatalog() {
         <TabsContent value={selectedCategory} className="mt-6">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredModules.map((module) => (
-              <TrainingCard key={module.id} module={module} />
+              <TrainingCard key={module.id} module={module} progress={getProgressForCourse(module.id)} />
             ))}
           </div>
         </TabsContent>
