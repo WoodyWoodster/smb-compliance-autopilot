@@ -1,36 +1,138 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SMB Compliance Autopilot
+
+AI-powered HIPAA compliance management platform for small healthcare practices. "TurboTax for HIPAA compliance."
+
+## Features
+
+- **Compliance Assessment** - Interactive quiz to identify your specific HIPAA requirements
+- **AI Policy Generator** - Generate customized compliance policies using AI
+- **Requirements Dashboard** - Track all HIPAA requirements and your compliance status
+- **Task Management** - Never miss a compliance deadline with automated reminders
+- **Document Storage** - Securely store policies, BAAs, training records, and more
+
+## Target Market
+
+- Dental practices
+- Chiropractic offices
+- Medical spas
+- Physical therapy clinics
+- Optometry practices
+- Mental health practices
+- Other small healthcare providers
+
+## Tech Stack
+
+- **Framework:** Next.js 15 with App Router
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS v4 + shadcn/ui
+- **Database:** Vercel Postgres + Drizzle ORM
+- **Storage:** Vercel Blob
+- **Auth:** Clerk
+- **Payments:** Stripe
+- **AI:** Anthropic Claude via Vercel AI SDK
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+
+- npm or yarn
+- Vercel account (for database, blob storage)
+- Clerk account (for authentication)
+- Stripe account (for payments)
+- Anthropic API key (for AI features)
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/smb-compliance-autopilot.git
+cd smb-compliance-autopilot
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Copy environment variables:
+```bash
+cp .env.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Fill in your environment variables in `.env.local`
 
-## Learn More
+5. Set up the database:
+```bash
+npm run db:push
+```
 
-To learn more about Next.js, take a look at the following resources:
+6. Start the development server:
+```bash
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Open [http://localhost:3000](http://localhost:3000) to see the app.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Environment Variables
 
-## Deploy on Vercel
+See `.env.example` for all required variables:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `POSTGRES_URL` - Vercel Postgres connection string
+- `BLOB_READ_WRITE_TOKEN` - Vercel Blob access token
+- `CLERK_SECRET_KEY` - Clerk authentication
+- `STRIPE_SECRET_KEY` - Stripe payments
+- `ANTHROPIC_API_KEY` - Claude AI for policy generation
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Project Structure
+
+```
+app/                    # Next.js App Router pages
+├── (auth)/            # Authentication pages
+├── (dashboard)/       # Protected dashboard pages
+├── api/               # API routes
+└── page.tsx           # Landing page
+
+components/            # React components
+├── ui/               # shadcn/ui components
+├── dashboard/        # Dashboard components
+├── assessment/       # Assessment wizard
+├── policies/         # Policy generator
+├── tasks/            # Task manager
+└── documents/        # Document manager
+
+lib/                   # Shared utilities
+├── db/               # Database schema & connection
+├── ai/               # AI integration
+├── compliance/       # HIPAA requirements data
+└── stripe.ts         # Stripe configuration
+```
+
+## Scripts
+
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server
+npm run lint         # Run ESLint
+npm run db:generate  # Generate Drizzle migrations
+npm run db:migrate   # Run database migrations
+npm run db:push      # Push schema to database
+npm run db:studio    # Open Drizzle Studio
+```
+
+## Deployment
+
+Deploy to Vercel:
+
+1. Connect your GitHub repository to Vercel
+2. Configure environment variables in Vercel dashboard
+3. Deploy
+
+## License
+
+Proprietary - All rights reserved
+
+## Support
+
+For support, email support@complianceautopilot.com
